@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // app/meeting/[id]/page.tsx
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
 "use client";
 import { useState, useEffect, useCallback, use } from "react";
 import { Button } from "@/components/ui/button";
@@ -7,9 +8,9 @@ import { Video, Copy } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface MeetingPageProps {
-	params: {
+	params: Promise<{
 		id: string;
-	};
+	}>;
 }
 
 export default function MeetingPage({ params }: MeetingPageProps) {
@@ -107,6 +108,21 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 							enabled: true,
 							skipGrantModerator: false,
 						},
+						watermark: {
+							enabled: false,
+							logo: "",
+							link: "",
+						},
+						disableDeepLinking: true,
+						// Add lobby/waiting room settings
+						lobby: {
+							enabled: true,
+							autoKnock: true,
+						},
+						enableLobbyChat: false, // Disable chat in lobby
+						requireDisplayName: true, // Force users to enter their name
+						enableClosePage: false,
+						enableInsecureRoomNameWarning: false,
 					},
 					interfaceConfigOverwrite: {
 						TOOLBAR_BUTTONS: [
@@ -115,38 +131,41 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 							"closedcaptions",
 							"desktop",
 							"fullscreen",
-							"chat",
 							"settings",
 							"raisehand",
 							"videoquality",
 							"filmstrip",
 							"tileview",
 							"participants-pane",
+							"security", // Add security button to manage lobby
 						],
-						SETTINGS_SECTIONS: [
-							"devices",
-							"language",
-							"moderator",
-							"profile",
-							"sounds",
-						],
-						SHOW_JITSI_WATERMARK: false,
-						DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
-						TOOLBAR_ALWAYS_VISIBLE: true,
-						VERTICAL_FILMSTRIP: true,
-						INITIAL_TOOLBAR_TIMEOUT: 20000,
-						DEFAULT_REMOTE_DISPLAY_NAME: "Participant",
-						DEFAULT_LOCAL_DISPLAY_NAME: "Me",
-						SHOW_PROMOTIONAL_CLOSE_PAGE: false,
-						HIDE_KICK_BUTTON_FOR_GUESTS: false,
-						MOBILE_APP_PROMO: false,
-						ENFORCE_NOTIFICATION_AUTO_DISMISS_TIMEOUT: 15000,
-						TILE_VIEW_MAX_COLUMNS: 5,
+						// ... rest of your interfaceConfigOverwrite settings ...
 					},
 				};
-
 				console.log("Creating JitsiMeetExternalAPI instance...");
 				const api = new window.JitsiMeetExternalAPI(domain, options);
+
+				// Add lobby-related event listeners
+				api.addEventListener(
+					"participantKnocking",
+					(knockingParticipant: any) => {
+						console.log("Participant waiting in lobby:", knockingParticipant);
+					}
+				);
+
+				api.addEventListener(
+					"lobby.participant-access-granted",
+					(participant: any) => {
+						console.log("Participant admitted from lobby:", participant);
+					}
+				);
+
+				api.addEventListener(
+					"lobby.participant-access-denied",
+					(participant: any) => {
+						console.log("Participant denied from lobby:", participant);
+					}
+				);
 
 				api.addEventListener("videoConferenceJoined", () => {
 					console.log("Successfully joined conference");
@@ -157,10 +176,10 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 					setError("Failed to connect to meeting server");
 				});
 
-				api.addEventListener("errorOccurred", (error: any) => {
-					console.error("Jitsi error:", error);
-					setError(`Meeting error: ${error.error}`);
-				});
+				// api.addEventListener("errorOccurred", (error: any) => {
+				// 	console.error("Jitsi error:", error);
+				// 	setError(`Meeting error: ${error.error}`);
+				// });
 
 				console.log("API instance created successfully");
 				setJitsiAPI(api);
@@ -211,22 +230,21 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 			) : (
 				<div className="fixed inset-0 w-full h-full z-50">
 					<div id="jitsiContainer" className="w-full h-full" />
-					<div className="absolute bottom-4 left-4 flex gap-2 z-[60]">
-						<Button
-							onClick={endMeeting}
-							className="bg-red-600 hover:bg-red-700 text-white"
-						>
-							End Meeting
-						</Button>
-						<Button
-							onClick={copyMeetingLink}
-							className="bg-blue-600 hover:bg-blue-700 text-white"
-						>
-							<Copy className="h-4 w-4 mr-2" />
-							Copy Link
-						</Button>
-						<div className="px-3 py-2 bg-gray-800 rounded-md text-sm">
-							Meeting ID: {meetingId}
+					<div className="fixed left-4 bottom-0 mb-20 sm:mb-16 md:mb-8 z-50">
+						<div className="flex flex-col gap-3">
+							<Button
+								onClick={endMeeting}
+								className="bg-red-600 hover:bg-red-700 text-white w-10 h-10 p-0 flex items-center justify-center"
+							>
+								<Video className="h-4 w-4" />
+							</Button>
+
+							<Button
+								onClick={copyMeetingLink}
+								className="bg-blue-600 hover:bg-blue-700 text-white w-10 h-10 p-0 flex items-center justify-center"
+							>
+								<Copy className="h-4 w-4" />
+							</Button>
 						</div>
 					</div>
 				</div>
