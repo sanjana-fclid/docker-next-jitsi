@@ -5,10 +5,20 @@ import { useState, useEffect } from "react";
 import { Mail, Lock, User, Star, Moon, Sun } from "lucide-react";
 import { FaGithub, FaDiscord, FaApple } from "react-icons/fa";
 import { FcGoogle } from "react-icons/fc";
+import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
+import { useRouter } from "next/navigation";
 
 export default function ThemeToggleAuthPage() {
 	const [isSignUp, setIsSignUp] = useState(false);
 	const [isDarkMode, setIsDarkMode] = useState(true);
+	const [email, setEmail] = useState("");
+	const [password, setPassword] = useState("");
+	const [name, setName] = useState("");
+	const [loading, setLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+
+	const router = useRouter();
+	const supabase = createClientComponentClient();
 
 	useEffect(() => {
 		const darkModeMediaQuery = window.matchMedia(
@@ -30,21 +40,154 @@ export default function ThemeToggleAuthPage() {
 		setIsDarkMode(!isDarkMode);
 	};
 
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		setError(null);
+		setLoading(true);
+
+		try {
+			if (isSignUp) {
+				const { error: signUpError } = await supabase.auth.signUp({
+					email,
+					password,
+					options: {
+						data: {
+							full_name: name,
+						},
+					},
+				});
+				if (signUpError) throw signUpError;
+			} else {
+				const { error: signInError } = await supabase.auth.signInWithPassword({
+					email,
+					password,
+				});
+				if (signInError) throw signInError;
+			}
+
+			router.refresh();
+		} catch (err) {
+			setError(err instanceof Error ? err.message : "An error occurred");
+		} finally {
+			setLoading(false);
+		}
+	};
+
 	const socialLoginButtons = [
 		{
 			icon: FaGithub,
 			label: "GitHub",
 			color: isDarkMode ? "#ffffff" : "#333333",
+			onClick: async () => {
+				setError(null);
+				try {
+					const { error } = await supabase.auth.signInWithOAuth({
+						provider: "github",
+						options: {
+							redirectTo: `${window.location.origin}/auth/callback`,
+						},
+					});
+					if (error) throw error;
+				} catch (err) {
+					setError(err instanceof Error ? err.message : "An error occurred");
+				}
+			},
 		},
-		{ icon: FcGoogle, label: "Google", color: "currentColor" },
-		{ icon: FaDiscord, label: "Discord", color: "#5865F2" },
+		{
+			icon: FcGoogle,
+			label: "Google",
+			color: "currentColor",
+			onClick: async () => {
+				setError(null);
+				try {
+					const { error } = await supabase.auth.signInWithOAuth({
+						provider: "google",
+						options: {
+							redirectTo: `${window.location.origin}/auth/callback`,
+						},
+					});
+					if (error) throw error;
+				} catch (err) {
+					setError(err instanceof Error ? err.message : "An error occurred");
+				}
+			},
+		},
+		{
+			icon: FaDiscord,
+			label: "Discord",
+			color: "#5865F2",
+			onClick: async () => {
+				setError(null);
+				try {
+					const { error } = await supabase.auth.signInWithOAuth({
+						provider: "discord",
+						options: {
+							redirectTo: `${window.location.origin}/auth/callback`,
+						},
+					});
+					if (error) throw error;
+				} catch (err) {
+					setError(err instanceof Error ? err.message : "An error occurred");
+				}
+			},
+		},
 		{
 			icon: FaApple,
 			label: "Apple",
 			color: isDarkMode ? "#ffffff" : "#000000",
+			onClick: async () => {
+				setError(null);
+				try {
+					const { error } = await supabase.auth.signInWithOAuth({
+						provider: "apple",
+						options: {
+							redirectTo: `${window.location.origin}/auth/callback`,
+						},
+					});
+					if (error) throw error;
+				} catch (err) {
+					setError(err instanceof Error ? err.message : "An error occurred");
+				}
+			},
 		},
 	];
 
+	const formFields = isSignUp ? (
+		<div className="mb-4">
+			<label
+				htmlFor="name"
+				className={`block mb-2 ${
+					isDarkMode ? "text-[#e0e7e7]" : "text-[#0c1414]"
+				}`}
+			>
+				Name
+			</label>
+			<div
+				className={`flex items-center border rounded-md ${
+					isDarkMode
+						? "border-[#2d3c3c] bg-[#1a2424]"
+						: "border-[#c0d7d7] bg-white"
+				}`}
+			>
+				<User
+					className={`ml-2 ${isDarkMode ? "text-[#7a8b8b]" : "text-[#4a6f6f]"}`}
+					size={20}
+				/>
+				<input
+					type="text"
+					id="name"
+					value={name}
+					onChange={(e) => setName(e.target.value)}
+					className={`w-full p-2 rounded-md focus:outline-none ${
+						isDarkMode
+							? "bg-[#1a2424] text-[#e0e7e7]"
+							: "bg-white text-[#0c1414]"
+					}`}
+					placeholder="John Doe"
+				/>
+			</div>
+		</div>
+	) : null;
 	return (
 		<div
 			className={`min-h-screen w-full flex flex-col lg:flex-row ${
@@ -96,11 +239,14 @@ export default function ThemeToggleAuthPage() {
 						</p>
 
 						{/* Social Login Buttons */}
+						{/* Social Login Buttons */}
 						<div className="mb-6">
 							<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
 								{socialLoginButtons.map((button, index) => (
 									<button
 										key={index}
+										onClick={button.onClick} // Add this onClick handler
+										type="button" // Add type="button" to prevent form submission
 										className={`flex items-center justify-center py-2 px-4 rounded-md transition duration-300 ${
 											isDarkMode
 												? "bg-[#1a2424] hover:bg-[#2d3c3c] text-[#e0e7e7]"
@@ -136,43 +282,8 @@ export default function ThemeToggleAuthPage() {
 							</span>
 						</div>
 
-						<form className="w-full">
-							{isSignUp && (
-								<div className="mb-4">
-									<label
-										htmlFor="name"
-										className={`block mb-2 ${
-											isDarkMode ? "text-[#e0e7e7]" : "text-[#0c1414]"
-										}`}
-									>
-										Name
-									</label>
-									<div
-										className={`flex items-center border rounded-md ${
-											isDarkMode
-												? "border-[#2d3c3c] bg-[#1a2424]"
-												: "border-[#c0d7d7] bg-white"
-										}`}
-									>
-										<User
-											className={`ml-2 ${
-												isDarkMode ? "text-[#7a8b8b]" : "text-[#4a6f6f]"
-											}`}
-											size={20}
-										/>
-										<input
-											type="text"
-											id="name"
-											className={`w-full p-2 rounded-md focus:outline-none ${
-												isDarkMode
-													? "bg-[#1a2424] text-[#e0e7e7]"
-													: "bg-white text-[#0c1414]"
-											}`}
-											placeholder="John Doe"
-										/>
-									</div>
-								</div>
-							)}
+						<form onSubmit={handleSubmit} className="w-full">
+							{formFields}
 							<div className="mb-4">
 								<label
 									htmlFor="email"
@@ -198,6 +309,8 @@ export default function ThemeToggleAuthPage() {
 									<input
 										type="email"
 										id="email"
+										value={email}
+										onChange={(e) => setEmail(e.target.value)}
 										className={`w-full p-2 rounded-md focus:outline-none ${
 											isDarkMode
 												? "bg-[#1a2424] text-[#e0e7e7]"
@@ -207,6 +320,7 @@ export default function ThemeToggleAuthPage() {
 									/>
 								</div>
 							</div>
+
 							<div className="mb-6">
 								<label
 									htmlFor="password"
@@ -232,6 +346,8 @@ export default function ThemeToggleAuthPage() {
 									<input
 										type="password"
 										id="password"
+										value={password}
+										onChange={(e) => setPassword(e.target.value)}
 										className={`w-full p-2 rounded-md focus:outline-none ${
 											isDarkMode
 												? "bg-[#1a2424] text-[#e0e7e7]"
@@ -241,15 +357,25 @@ export default function ThemeToggleAuthPage() {
 									/>
 								</div>
 							</div>
+
+							{error && (
+								<div className="mb-4 text-red-500 text-sm text-center">
+									{error}
+								</div>
+							)}
+
 							<button
 								type="submit"
+								disabled={loading}
 								className={`w-full py-2 px-4 rounded-md ${
 									isDarkMode
 										? "bg-[#1e5454] text-[#e0e7e7] hover:bg-[#246767]"
 										: "bg-[#1e5454] text-white hover:bg-[#246767]"
-								} transition duration-300`}
+								} transition duration-300 ${
+									loading ? "opacity-70 cursor-not-allowed" : ""
+								}`}
 							>
-								{isSignUp ? "Sign Up" : "Sign In"}
+								{loading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
 							</button>
 						</form>
 						{!isSignUp && (
