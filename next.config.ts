@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 const nextConfig = {
 	// async headers() {
 	// 	return [
@@ -22,7 +23,7 @@ const nextConfig = {
 	// 	];
 	// },
 	// If your Jitsi is using a self-signed certificate
-	webpack: (config, { isServer }) => {
+	webpack: (config: { resolve: { fallback: any } }, { isServer }: any) => {
 		if (!isServer) {
 			config.resolve.fallback = {
 				...config.resolve.fallback,
