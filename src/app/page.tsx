@@ -89,17 +89,17 @@ export default function Component() {
 		router.push(`/meeting/${meetingId}`);
 	};
 
-	const handleSignOut = async () => {
-		try {
-			const { error } = await supabase.auth.signOut();
-			if (error) throw error;
-			router.refresh();
-			toast.success("Signed out successfully");
-		} catch (error) {
-			console.error("Error signing out:", error);
-			toast.error("Failed to sign out");
-		}
-	};
+	// const handleSignOut = async () => {
+	// 	try {
+	// 		const { error } = await supabase.auth.signOut();
+	// 		if (error) throw error;
+	// 		router.refresh();
+	// 		toast.success("Signed out successfully");
+	// 	} catch (error) {
+	// 		console.error("Error signing out:", error);
+	// 		toast.error("Failed to sign out");
+	// 	}
+	// };
 
 	// const ProfileButton = () => {
 	// 	if (loading) {
@@ -168,13 +168,13 @@ export default function Component() {
 			<header className="relative z-10 flex h-14 items-center justify-between border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6">
 				<div className="flex items-center gap-2">
 					{darkMode ? (
-						<img src="/logo.png" alt="DataFab Logo" className="h-6 w-3" />
+						<img src="/LogoLGwhite.png" alt="DataFab Logo" className="h-14" />
 					) : (
-						<img src="/logoB.png" alt="DataFab Logo" className="h-6 w-3" />
+						<img src="/LogoLGblack.png" alt="DataFab Logo" className="h-14" />
 					)}
-					<span className="text-lg font-semibold text-blue-600 dark:text-blue-400">
+					{/* <span className="text-lg font-semibold text-blue-600 dark:text-blue-400">
 						DataFab
-					</span>
+					</span> */}
 				</div>
 				<div className="flex items-center gap-4">
 					<Button

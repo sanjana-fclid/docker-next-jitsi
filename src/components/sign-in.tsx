@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable react/no-unescaped-entities */
 "use client";
 
@@ -199,13 +200,13 @@ export default function ThemeToggleAuthPage() {
 			{/* Auth form section */}
 			<div className="w-full lg:w-1/2 p-4 md:p-8 flex flex-col">
 				<header className="mb-8 flex justify-between items-center">
-					<h1
-						className={`text-2xl font-bold ${
-							isDarkMode ? "text-[#e0e7e7]" : "text-[#0c1414]"
-						}`}
-					>
-						DataFab
-					</h1>
+					<div className="flex items-center gap-2">
+						{isDarkMode ? (
+							<img src="/LogoLGwhite.png" alt="DataFab Logo" className="h-14" />
+						) : (
+							<img src="/LogoLGblack.png" alt="DataFab Logo" className="h-14" />
+						)}
+					</div>
 					<button
 						onClick={toggleTheme}
 						className={`p-2 rounded-full ${
