@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import SupabaseProvider from "@/components/SupabaseProvider";
+import SupabaseProvider from "@/components/providers/SupabaseProvider";
 
 const geistSans = localFont({
 	src: "./fonts/GeistVF.woff",
@@ -16,7 +16,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-	title: "DataFab Meet",
+	title: "DataFab Collab",
 	description:
 		"Connect, collaborate, and celebrate from anywhere with DataFab Secure Collaboration Platform",
 };
