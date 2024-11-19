@@ -233,7 +233,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 					{/* Logo Container */}
 					<div className="fixed left-4 top-4 z-50">
 						<img
-							src="/LogoLG.png"
+							src="/LogoLG2.png"
 							alt="Company Logo"
 							className="h-8 lg:h-12 md:h-12  rounded-lg mt-4"
 						/>

@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Avatar } from "@/components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
 	DropdownMenu,
@@ -12,7 +12,7 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOut } from "lucide-react";
+import { LogOut, User as UserIcon } from "lucide-react";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import type { User } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
@@ -91,44 +91,54 @@ export default function UserDropdown() {
 
 	return (
 		<div className="flex items-center gap-2">
-			{/* <span className="text-sm text-gray-600 dark:text-gray-400">
-				{user.user_metadata?.name}
-			</span> */}
 			<DropdownMenu>
 				<DropdownMenuTrigger asChild>
 					<Button size="icon" variant="ghost" className="rounded-full">
-						<img
-							alt="Avatar"
-							className="rounded-full"
-							height="32"
-							src={user.user_metadata?.avatar_url || <Avatar />}
-							style={{ aspectRatio: "32/32", objectFit: "cover" }}
-							width="32"
-						/>
+						<Avatar className="h-8 w-8">
+							<AvatarImage
+								src={user.user_metadata?.avatar_url}
+								alt={user.user_metadata?.name || "User avatar"}
+							/>
+							<AvatarFallback>
+								<UserIcon className="h-4 w-4" />
+							</AvatarFallback>
+						</Avatar>
 					</Button>
 				</DropdownMenuTrigger>
-				<DropdownMenuContent className="w-56" align="end" forceMount>
-					<DropdownMenuLabel className="font-normal">
-						<div className="flex flex-col space-y-1">
-							<p className="text-sm font-medium leading-none">
+				<DropdownMenuContent className="" align="end" forceMount>
+					<div className="flex flex-col items-center gap-4 p-4">
+						<div className="relative">
+							<Avatar className="h-12 w-12">
+								<AvatarImage
+									src={user.user_metadata?.avatar_url}
+									alt={user.user_metadata?.name || "User avatar"}
+									className="object-cover"
+								/>
+								<AvatarFallback className="text-2xl">
+									<UserIcon className="h-12 w-12" />
+								</AvatarFallback>
+							</Avatar>
+						</div>
+						<div className="flex flex-col space-y-1 text-center">
+							<p className="text-md font-semibold leading-none">
 								{user.user_metadata?.name}
 							</p>
-							<p className="text-xs leading-none text-muted-foreground">
+							<p className="text-sm leading-none text-muted-foreground">
 								{user.email}
 							</p>
 						</div>
-					</DropdownMenuLabel>
+					</div>
 					<DropdownMenuSeparator />
-					<DropdownMenuItem>
+					<div className="p-2">
 						<Button
 							variant="ghost"
 							onClick={handleSignOut}
-							className="flex-1 bg-[#d36464] hover:bg-[#bd4242] text-white w-full"
+							className="flex-1 bg-[#202E2D] hover:bg-[#244E5A] text-white w-full"
 						>
 							<LogOut className="mr-2 h-4 w-4" />
 							Sign Out
 						</Button>
-					</DropdownMenuItem>
+					</div>
 				</DropdownMenuContent>
 			</DropdownMenu>
 		</div>
