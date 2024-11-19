@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import UserDropdown from "@/components/profile";
 
 export default function Component() {
 	const [darkMode, setDarkMode] = useState(true);
@@ -100,52 +101,52 @@ export default function Component() {
 		}
 	};
 
-	const ProfileButton = () => {
-		if (loading) {
-			return (
-				<Button size="icon" variant="ghost" className="rounded-full opacity-50">
-					<div className="w-8 h-8 rounded-full bg-gray-300 animate-pulse" />
-				</Button>
-			);
-		}
+	// const ProfileButton = () => {
+	// 	if (loading) {
+	// 		return (
+	// 			<Button size="icon" variant="ghost" className="rounded-full opacity-50">
+	// 				<div className="w-8 h-8 rounded-full bg-gray-300 animate-pulse" />
+	// 			</Button>
+	// 		);
+	// 	}
 
-		if (!user) {
-			return (
-				<Button
-					variant="ghost"
-					onClick={handleAuthRequired}
-					className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-				>
-					Sign In
-				</Button>
-			);
-		}
+	// 	if (!user) {
+	// 		return (
+	// 			<Button
+	// 				variant="ghost"
+	// 				onClick={handleAuthRequired}
+	// 				className="flex-1 bg-[#202E2D] hover:bg-[#244E5A] text-white"
+	// 			>
+	// 				Sign In
+	// 			</Button>
+	// 		);
+	// 	}
 
-		return (
-			<div className="flex items-center gap-2">
-				<span className="text-sm text-gray-600 dark:text-gray-400">
-					{user.email}
-				</span>
-				<Button size="icon" variant="ghost" className="rounded-full">
-					<img
-						alt="Avatar"
-						className="rounded-full"
-						height="32"
-						src={user.user_metadata?.avatar_url || "/api/placeholder/32/32"}
-						style={{ aspectRatio: "32/32", objectFit: "cover" }}
-						width="32"
-					/>
-				</Button>
-				<Button
-					variant="ghost"
-					onClick={handleSignOut}
-					className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white"
-				>
-					Sign Out
-				</Button>
-			</div>
-		);
-	};
+	// 	return (
+	// 		<div className="flex items-center gap-2">
+	// 			<span className="text-sm text-gray-600 dark:text-gray-400">
+	// 				{user.user_metadata?.name}
+	// 			</span>
+	// 			<Button size="icon" variant="ghost" className="rounded-full">
+	// 				<img
+	// 					alt="Avatar"
+	// 					className="rounded-full"
+	// 					height="32"
+	// 					src={user.user_metadata?.avatar_url || "/api/placeholder/32/32"}
+	// 					style={{ aspectRatio: "32/32", objectFit: "cover" }}
+	// 					width="32"
+	// 				/>
+	// 			</Button>
+	// 			<Button
+	// 				variant="ghost"
+	// 				onClick={handleSignOut}
+	// 				className="flex-1 bg-[#d36464] hover:bg-[#bd4242] text-white"
+	// 			>
+	// 				Sign Out
+	// 			</Button>
+	// 		</div>
+	// 	);
+	// };
 	return (
 		<div
 			className={`min-h-screen ${
@@ -166,7 +167,11 @@ export default function Component() {
 
 			<header className="relative z-10 flex h-14 items-center justify-between border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6">
 				<div className="flex items-center gap-2">
-					<Video className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+					{darkMode ? (
+						<img src="/logo.png" alt="DataFab Logo" className="h-6 w-3" />
+					) : (
+						<img src="/logoB.png" alt="DataFab Logo" className="h-6 w-3" />
+					)}
 					<span className="text-lg font-semibold text-blue-600 dark:text-blue-400">
 						DataFab
 					</span>
@@ -185,7 +190,8 @@ export default function Component() {
 						)}
 						<span className="sr-only">Toggle theme</span>
 					</Button>
-					<ProfileButton />
+					{/* <ProfileButton /> */}
+					<UserDropdown />
 				</div>
 			</header>
 

@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // app/meeting/[id]/page.tsx
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
@@ -229,6 +230,15 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 				</div>
 			) : (
 				<div className="fixed inset-0 w-full h-full z-50">
+					{/* Logo Container */}
+					<div className="fixed left-4 top-4 z-50">
+						<img
+							src="/LogoLG.png"
+							alt="Company Logo"
+							className="h-8 lg:h-12 md:h-12  rounded-lg mt-4"
+						/>
+					</div>
+
 					<div id="jitsiContainer" className="w-full h-full" />
 					<div className="fixed left-4 bottom-0 mb-20 sm:mb-16 md:mb-8 z-50">
 						<div className="flex flex-col gap-3">
