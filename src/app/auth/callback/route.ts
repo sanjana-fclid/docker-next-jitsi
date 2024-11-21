@@ -12,5 +12,5 @@ export async function GET(request: Request) {
 	}
 
 	// Redirect to the home page after successful login
-	return NextResponse.redirect(requestUrl.origin);
+	return NextResponse.redirect(NEXT_PUBLIC_REACT_APP_URL);
 }
