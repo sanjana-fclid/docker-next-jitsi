@@ -26,7 +26,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 			try {
 				console.log("Starting to load Jitsi script...");
 				const script = document.createElement("script");
-				script.src = "https://localhost:8443/external_api.js";
+				script.src = "https://100.118.36.69:8443/external_api.js";
 				script.async = true;
 
 				script.onload = () => {
@@ -78,7 +78,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 					throw new Error("JitsiMeetExternalAPI not available");
 				}
 
-				const domain = "localhost:8443";
+				const domain = "meet.datafabdevelopment.com";
 
 				console.log("Creating meeting with:", { domain, meetingId });
 

@@ -71,7 +71,7 @@ export default function ThemeToggleAuthPage() {
 					const { error } = await supabase.auth.signInWithOAuth({
 						provider: "google",
 						options: {
-							redirectTo: `${window.location.origin}/auth/callback`,
+							redirectTo: `https://collab.datafabdevelopment.com/auth/callback`,
 						},
 					});
 					if (error) throw error;
