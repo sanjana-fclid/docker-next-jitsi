@@ -7,7 +7,7 @@ import { useState, useEffect, useCallback, use } from "react";
 import { Button } from "@/components/ui/button";
 import { Video, Copy } from "lucide-react";
 import { useRouter } from "next/navigation";
-
+import { userService } from "@/lib/userData";
 interface MeetingPageProps {
 	params: Promise<{
 		id: string;
@@ -15,6 +15,8 @@ interface MeetingPageProps {
 }
 
 export default function MeetingPage({ params }: MeetingPageProps) {
+	const [user, setUser] = useState<any>(null);
+
 	const router = useRouter();
 	const [jitsiAPI, setJitsiAPI] = useState<any>(null);
 	const [isScriptLoaded, setIsScriptLoaded] = useState(false);
@@ -26,6 +28,24 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 			  "https://localhost:8443/external_api.js"
 			: process.env.NEXT_PUBLIC_JITSI_URL ||
 			  "https://meet.datafabdevelopment.com/external_api.js";
+
+	// Fetch user data when component mounts
+	useEffect(() => {
+		const fetchUser = async () => {
+			try {
+				const currentUser = await userService.getUser();
+				setUser(currentUser);
+			} catch (error) {
+				console.error("Error fetching user:", error);
+				toast.error("Failed to fetch user data");
+			}
+		};
+
+		fetchUser();
+	}, []);
+
+	// Get user's display name from user metadata
+	const displayName = user?.user_metadata?.name || user?.email || "Guest User";
 
 	const loadJitsiScript = useCallback(() => {
 		return new Promise<void>((resolve, reject) => {
@@ -93,6 +113,10 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 					width: "100%",
 					height: "100%",
 					parentNode: document.querySelector("#jitsiContainer"),
+					userInfo: {
+						displayName: displayName,
+						email: user?.email,
+					},
 					configOverwrite: {
 						prejoinPageEnabled: false,
 						startWithAudioMuted: true,
@@ -196,10 +220,10 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 			}
 		};
 
-		if (isScriptLoaded && meetingId && !jitsiAPI) {
+		if (isScriptLoaded && meetingId && !jitsiAPI && user) {
 			startMeeting();
 		}
-	}, [isScriptLoaded, meetingId, jitsiAPI]);
+	}, [isScriptLoaded, meetingId, jitsiAPI, user]);
 
 	const copyMeetingLink = async () => {
 		try {

@@ -26,7 +26,7 @@ export const Hero: FC<HeroProps> = ({
 		<div className="flex flex-col md:flex-row items-center justify-center w-full max-w-7xl gap-12 mb-16 mt-8">
 			<div className="max-w-md text-center md:text-left">
 				<h1 className="text-4xl font-bold tracking-tighter sm:text-5xl text-[#101717] dark:text-blue-400">
-					Collaboration Platform for everyone
+					Collaboration Platform for Everyone
 				</h1>
 				<p className="mt-4 text-gray-600 dark:text-gray-300 font-sans tracking-tighter">
 					Connect, collaborate, and celebrate from anywhere with DataFab Secure
