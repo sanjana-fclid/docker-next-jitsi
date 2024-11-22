@@ -11,6 +11,17 @@ export async function GET(request: Request) {
 		await supabase.auth.exchangeCodeForSession(code);
 	}
 
-	// Redirect to the home page after successful login
-	return NextResponse.redirect(NEXT_PUBLIC_REACT_APP_URL);
+	// In development, always redirect to localhost
+	if (process.env.NODE_ENV === "development") {
+		return NextResponse.redirect("http://localhost:3000");
+	}
+
+	// In production, use the configured app URL
+	const redirectUrl =
+		process.env.NEXT_PUBLIC_REACT_APP_URL || requestUrl.origin;
+	return NextResponse.redirect(redirectUrl);
 }
+
+export const config = {
+	runtime: "edge",
+};

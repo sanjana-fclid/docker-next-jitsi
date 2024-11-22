@@ -20,13 +20,19 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 	const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const meetingId = use(params).id;
+	const JITSI_URL =
+		process.env.NODE_ENV === "development"
+			? process.env.NEXT_PUBLIC_JITSI_URL_LOCAL ||
+			  "https://localhost:8443/external_api.js"
+			: process.env.NEXT_PUBLIC_JITSI_URL ||
+			  "https://meet.datafabdevelopment.com/external_api.js";
 
 	const loadJitsiScript = useCallback(() => {
 		return new Promise<void>((resolve, reject) => {
 			try {
 				console.log("Starting to load Jitsi script...");
 				const script = document.createElement("script");
-				script.src = "https://100.118.36.69:8443/external_api.js";
+				script.src = JITSI_URL;
 				script.async = true;
 
 				script.onload = () => {
