@@ -16,7 +16,7 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-	title: "DataFab Collab",
+	title: "DataFab Collab - Celebrate from Anywhere",
 	description:
 		"Connect, collaborate, and celebrate from anywhere with DataFab Secure Collaboration Platform",
 };

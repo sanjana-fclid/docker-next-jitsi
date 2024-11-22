@@ -8,6 +8,7 @@ import { FcGoogle } from "react-icons/fc";
 import { createClientComponentClient } from "@supabase/auth-helpers-nextjs";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Header } from "../layout/Header";
 
 export default function ThemeToggleAuthPage() {
 	const [isSignUp, setIsSignUp] = useState(false);
@@ -167,11 +168,13 @@ export default function ThemeToggleAuthPage() {
 			<div className="absolute inset-0 z-0">
 				<div className="h-full w-full" style={gridBackground} />
 			</div>
-
+			<div className="w-full z-20">
+				<Header darkMode={darkMode} setDarkMode={setDarkMode} />
+			</div>
 			<div className="relative z-10 flex flex-col lg:flex-row min-h-screen">
 				{/* Auth form section */}
 				<div className="w-full lg:w-1/2 p-4 md:p-8 flex flex-col">
-					<header className="mb-8 flex justify-between items-center">
+					{/* <header className="mb-8 flex justify-between items-center">
 						<div className="flex items-center gap-2">
 							<img
 								src={darkMode ? "/LogoLGwhite.png" : "/LogoLGblack.png"}
@@ -188,7 +191,7 @@ export default function ThemeToggleAuthPage() {
 						>
 							{darkMode ? <Sun size={20} /> : <Moon size={20} />}
 						</button>
-					</header>
+					</header> */}
 
 					<main className="flex-grow flex items-center justify-center w-full">
 						<div className="w-full max-w-md mx-auto space-y-6">

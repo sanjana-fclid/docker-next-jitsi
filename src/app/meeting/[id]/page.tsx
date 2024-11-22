@@ -77,7 +77,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 	useEffect(() => {
 		loadJitsiScript().catch((err) => {
 			console.error("Script loading failed:", err);
-			setError("Failed to load Jitsi script");
+			setError("Script loading failed. Check the backend server");
 		});
 
 		return () => {
