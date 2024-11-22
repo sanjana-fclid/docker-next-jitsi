@@ -5,11 +5,17 @@ import type { NextRequest } from "next/server";
 export async function middleware(req: NextRequest) {
 	const res = NextResponse.next();
 
-	// Add dot prefix for production domain to enable subdomain sharing
-	const domain =
-		process.env.MAIN_DOMAIN && process.env.NODE_ENV === "production"
-			? `.${process.env.MAIN_DOMAIN}` // Adds dot for production (e.g. .datafabdevelopment.com)
-			: process.env.MAIN_DOMAIN; // Keeps as is for localhost
+	// Always add dot prefix to enable subdomain sharing
+	const domain = process.env.MAIN_DOMAIN
+		? `.${process.env.MAIN_DOMAIN}`
+		: "localhost";
+
+	console.log("Middleware Cookie Settings:", {
+		mainDomain: process.env.MAIN_DOMAIN,
+		calculatedDomain: domain,
+		nodeEnv: process.env.NODE_ENV,
+		currentUrl: req.url,
+	});
 
 	const supabase = createMiddlewareClient(
 		{ req, res },
@@ -18,12 +24,18 @@ export async function middleware(req: NextRequest) {
 				domain: domain,
 				path: "/",
 				sameSite: "lax",
-				secure: true,
+				secure: process.env.NODE_ENV === "production",
 			},
 		}
 	);
 
-	await supabase.auth.getSession();
+	const session = await supabase.auth.getSession();
+	console.log("Auth Session Result:", {
+		hasSession: !!session.data.session,
+		cookieDomain: domain,
+		currentUrl: req.url,
+	});
+
 	return res;
 }
 
