@@ -37,7 +37,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 				setUser(currentUser);
 			} catch (error) {
 				console.error("Error fetching user:", error);
-				toast.error("Failed to fetch user data");
+				//toast.error("Failed to fetch user data");
 			}
 		};
 

@@ -37,9 +37,9 @@ export default function ThemeToggleAuthPage() {
 		setIsSignUp(!isSignUp);
 	};
 
-	const toggleTheme = () => {
-		setDarkMode(!darkMode);
-	};
+	// const toggleTheme = () => {
+	// 	setDarkMode(!darkMode);
+	// };
 
 	const socialLoginButtons = [
 		{
