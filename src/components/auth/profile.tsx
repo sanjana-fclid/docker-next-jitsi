@@ -52,8 +52,15 @@ export default function UserDropdown() {
 
 	const handleSignOut = async () => {
 		try {
+			// Sign out from Supabase
 			const { error } = await supabase.auth.signOut();
 			if (error) throw error;
+
+			// Delete the Supabase auth cookie
+			document.cookie =
+				"sb-esimnlghtxeqngnnjzqs-auth-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+
+			// Refresh the router and show success message
 			router.refresh();
 			toast.success("Signed out successfully");
 		} catch (error) {

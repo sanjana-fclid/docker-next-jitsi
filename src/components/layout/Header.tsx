@@ -12,7 +12,9 @@ export const Header: FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
 	const setThemeCookie = (theme: "dark" | "light") => {
 		document.cookie = `datafab-theme=${theme}; max-age=${
 			365 * 24 * 60 * 60
-		}; path=/; domain=.datafabdevelopment.com; SameSite=Lax`;
+		}; path=/; domain=.${
+			process.env.THEME_DOMAIN || "localhost"
+		}; SameSite=Lax`;
 	};
 
 	const getThemeFromCookie = (): "dark" | "light" | null => {
@@ -85,13 +87,15 @@ export const Header: FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
 
 	return (
 		<header className="relative z-10 flex h-14 items-center justify-between border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6">
-			<div className="flex items-center gap-2">
-				{darkMode ? (
-					<img src="/LogoLGwhite.png" alt="DataFab Logo" className="h-6" />
-				) : (
-					<img src="/LogoLGblack.png" alt="DataFab Logo" className="h-6" />
-				)}
-			</div>
+			<a href="https://collab.datafabdevelpoment.com">
+				<div className="flex items-center gap-2">
+					{darkMode ? (
+						<img src="/LogoLGwhite.png" alt="DataFab Logo" className="h-6" />
+					) : (
+						<img src="/LogoLGblack.png" alt="DataFab Logo" className="h-6" />
+					)}
+				</div>
+			</a>
 			<div className="flex items-center gap-4">
 				<Button
 					variant="ghost"
