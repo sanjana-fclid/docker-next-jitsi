@@ -56,13 +56,52 @@ export default function UserDropdown() {
 			const { error } = await supabase.auth.signOut();
 			if (error) throw error;
 
-			// Delete the Supabase auth cookie
-			document.cookie =
-				"sb-esimnlghtxeqngnnjzqs-auth-token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+			// Helper function to delete cookies with more options
+			const deleteCookie = (name: string) => {
+				// Delete cookie for root path and domain
+				document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
 
-			// Refresh the router and show success message
+				// Also try deleting with current domain
+				document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`;
+
+				// Try deleting with domain preceded by dot
+				document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${window.location.hostname};`;
+			};
+
+			// Get initial cookies for logging
+			const initialCookies = document.cookie;
+			console.log("Cookies before deletion:", initialCookies);
+
+			// Delete both Supabase auth cookies
+			const cookiesToDelete = [
+				"sb-esimnlghtxeqngnnjzqs-auth-token",
+				"sb-esimnlghtxeqngnnjzqs-auth-token-code-verifier",
+			];
+
+			cookiesToDelete.forEach((cookieName) => {
+				deleteCookie(cookieName);
+				console.log(`Attempted to delete cookie: ${cookieName}`);
+			});
+
+			// Log remaining cookies
+			console.log("Cookies after deletion:", document.cookie);
+
+			// Refresh the router
 			router.refresh();
-			toast.success("Signed out successfully");
+
+			// Verify if cookies were actually deleted
+			const remainingCookies = document.cookie.split(";").map((c) => c.trim());
+			const anyAuthCookiesLeft = remainingCookies.some((cookie) =>
+				cookiesToDelete.some((name) => cookie.startsWith(name + "="))
+			);
+
+			if (anyAuthCookiesLeft) {
+				console.warn("Some auth cookies still remain after deletion attempt");
+				console.log("Remaining cookies:", remainingCookies);
+			} else {
+				console.log("All auth cookies successfully deleted");
+				toast.success("Signed out successfully");
+			}
 		} catch (error) {
 			console.error("Error signing out:", error);
 			toast.error("Failed to sign out");

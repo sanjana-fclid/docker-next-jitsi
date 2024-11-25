@@ -91,7 +91,7 @@ export const Header: FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
 
 	return (
 		<header className="relative z-10 flex h-14 items-center justify-between border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6">
-			<a href="https://collab.datafabdevelpoment.com">
+			<a href="https://collab.datafabdevelopment.com">
 				<div className="flex items-center gap-2">
 					{darkMode ? (
 						<img src="/LogoLGwhite.png" alt="DataFab Logo" className="h-6" />
