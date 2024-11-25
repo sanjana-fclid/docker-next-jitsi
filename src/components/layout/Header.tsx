@@ -10,11 +10,15 @@ interface HeaderProps {
 
 export const Header: FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
 	const setThemeCookie = (theme: "dark" | "light") => {
-		document.cookie = `datafab-theme=${theme}; max-age=${
+		const cookieValue = `datafab-theme=${theme}; max-age=${
 			365 * 24 * 60 * 60
 		}; path=/; domain=.${
 			process.env.THEME_DOMAIN || "localhost"
 		}; SameSite=Lax`;
+
+		document.cookie = cookieValue;
+
+		console.log(`Cookie set: ${cookieValue}`);
 	};
 
 	const getThemeFromCookie = (): "dark" | "light" | null => {
