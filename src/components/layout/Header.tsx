@@ -13,7 +13,7 @@ export const Header: FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
 		const cookieValue = `datafab-theme=${theme}; max-age=${
 			365 * 24 * 60 * 60
 		}; path=/; domain=.${
-			process.env.THEME_DOMAIN || "localhost"
+			process.env.THEME_DOMAIN || "datafabdevelopment.com"
 		}; SameSite=Lax`;
 
 		document.cookie = cookieValue;

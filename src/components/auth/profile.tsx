@@ -52,47 +52,48 @@ export default function UserDropdown() {
 
 	const handleSignOut = async () => {
 		try {
+			console.log("Initial cookies:", document.cookie);
+
 			// Sign out from Supabase
 			const { error } = await supabase.auth.signOut();
-			if (error) throw error;
+			if (error) {
+				throw error;
+			}
 
-			// Helper function to delete cookies with more options
-			const deleteCookie = (name: string) => {
-				// Delete cookie for root path and domain
-				document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-
-				// Also try deleting with current domain
-				document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`;
-
-				// Try deleting with domain preceded by dot
-				document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${window.location.hostname};`;
-			};
-
-			// Get initial cookies for logging
-			const initialCookies = document.cookie;
-			console.log("Cookies before deletion:", initialCookies);
-
-			// Delete both Supabase auth cookies
+			// Delete both auth tokens with multiple domain attempts
 			const cookiesToDelete = [
 				"sb-esimnlghtxeqngnnjzqs-auth-token",
 				"sb-esimnlghtxeqngnnjzqs-auth-token-code-verifier",
 			];
 
+			const domains = [
+				"", // no domain
+				window.location.hostname, // current domain
+				`.${window.location.hostname}`, // domain with dot prefix
+				".datafabdevelopment.com", // explicit domain
+			];
+
 			cookiesToDelete.forEach((cookieName) => {
-				deleteCookie(cookieName);
-				console.log(`Attempted to delete cookie: ${cookieName}`);
+				domains.forEach((domain) => {
+					const cookieString = domain
+						? `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${domain};`
+						: `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+
+					document.cookie = cookieString;
+					console.log(
+						`Attempting to delete ${cookieName} with domain: ${
+							domain || "none"
+						}`
+					);
+				});
 			});
 
-			// Log remaining cookies
-			console.log("Cookies after deletion:", document.cookie);
+			console.log("Remaining cookies after deletion:", document.cookie);
 
-			// Refresh the router
-			router.refresh();
-
-			// Verify if cookies were actually deleted
+			// Verify deletion
 			const remainingCookies = document.cookie.split(";").map((c) => c.trim());
 			const anyAuthCookiesLeft = remainingCookies.some((cookie) =>
-				cookiesToDelete.some((name) => cookie.startsWith(name + "="))
+				cookiesToDelete.some((name) => cookie.startsWith(`${name}=`))
 			);
 
 			if (anyAuthCookiesLeft) {
@@ -100,11 +101,11 @@ export default function UserDropdown() {
 				console.log("Remaining cookies:", remainingCookies);
 			} else {
 				console.log("All auth cookies successfully deleted");
-				toast.success("Signed out successfully");
 			}
+
+			// Redirect to sign-in page
 		} catch (error) {
 			console.error("Error signing out:", error);
-			toast.error("Failed to sign out");
 		}
 	};
 

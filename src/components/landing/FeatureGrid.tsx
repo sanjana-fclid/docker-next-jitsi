@@ -22,21 +22,21 @@ export const FeatureGrid: FC<FeatureGridProps> = ({ darkMode }) => {
 			title: "Live Document Sharing",
 			description: "Collaborate on documents with real-time editing",
 			gradient: "from-green-600 to-green-400",
-			href: "https://docs.datafabdevelopment.com",
+			href: "#",
 		},
 		{
 			icon: <MessageSquare className="h-8 w-8" />,
 			title: "Chats",
 			description: "Instant messaging for quick team communication",
 			gradient: "from-purple-600 to-purple-400",
-			href: "https://chat.datafabdevelopment.com",
+			href: "#",
 		},
 		{
 			icon: <Cloud className="h-8 w-8" />,
 			title: "File Share Cloud",
 			description: "Securely store and share files in the cloud",
 			gradient: "from-yellow-600 to-yellow-400",
-			href: "https://files.datafabdevelopment.com",
+			href: "#",
 		},
 	];
 
