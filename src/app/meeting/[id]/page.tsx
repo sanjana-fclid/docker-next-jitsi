@@ -15,12 +15,6 @@ interface MeetingPageProps {
 	}>;
 }
 
-declare global {
-	interface Window {
-		JitsiMeetExternalAPI: any;
-	}
-}
-
 export default function MeetingPage({ params }: MeetingPageProps) {
 	const [user, setUser] = useState<any>(null);
 	const router = useRouter();

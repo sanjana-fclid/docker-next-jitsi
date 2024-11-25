@@ -9,35 +9,79 @@ interface HeaderProps {
 }
 
 export const Header: FC<HeaderProps> = ({ darkMode, setDarkMode }) => {
-	// Set cookie function
 	const setThemeCookie = (theme: "dark" | "light") => {
-		const oneYear = 365 * 24 * 60 * 60;
-		document.cookie = `datafab-theme=${theme}; max-age=${oneYear}; path=/; SameSite=Lax`;
+		document.cookie = `datafab-theme=${theme}; max-age=${
+			365 * 24 * 60 * 60
+		}; path=/; domain=.datafabdevelopment.com; SameSite=Lax`;
 	};
 
-	// Handle theme toggle
-	const handleThemeToggle = () => {
-		const newTheme = !darkMode;
-		setDarkMode(newTheme);
-		setThemeCookie(newTheme ? "dark" : "light");
-	};
-
-	// Initialize theme from cookie on mount, default to dark if no cookie exists
-	useEffect(() => {
+	const getThemeFromCookie = (): "dark" | "light" | null => {
 		const cookies = document.cookie.split(";");
 		const themeCookie = cookies.find((cookie) =>
 			cookie.trim().startsWith("datafab-theme=")
 		);
 
 		if (themeCookie) {
-			const savedTheme = themeCookie.split("=")[1].trim();
+			return themeCookie.split("=")[1].trim() as "dark" | "light";
+		}
+		return null;
+	};
+
+	// Handle cookie changes
+	useEffect(() => {
+		const handleStorageChange = (event: StorageEvent) => {
+			if (event.key === "datafab-theme") {
+				const newTheme = event.newValue as "dark" | "light";
+				setDarkMode(newTheme === "dark");
+			}
+		};
+
+		// Create a cookie change interval checker
+		const cookieCheckInterval = setInterval(() => {
+			const currentTheme = getThemeFromCookie();
+			if (currentTheme) {
+				setDarkMode(currentTheme === "dark");
+			}
+		}, 1000); // Check every second
+
+		// Listen for localStorage changes as a backup
+		window.addEventListener("storage", handleStorageChange);
+
+		return () => {
+			window.removeEventListener("storage", handleStorageChange);
+			clearInterval(cookieCheckInterval);
+		};
+	}, [setDarkMode]);
+
+	// Initial theme setup and dark mode class handling
+	useEffect(() => {
+		const savedTheme = getThemeFromCookie();
+
+		if (savedTheme) {
 			setDarkMode(savedTheme === "dark");
 		} else {
 			// Set default to dark theme if no cookie exists
 			setDarkMode(true);
 			setThemeCookie("dark");
 		}
-	}, [setDarkMode]);
+	}, []); // Run once on mount
+
+	// Handle dark mode class separately to avoid race conditions
+	useEffect(() => {
+		if (darkMode) {
+			document.documentElement.classList.add("dark");
+		} else {
+			document.documentElement.classList.remove("dark");
+		}
+	}, [darkMode]);
+
+	const handleThemeToggle = () => {
+		const newTheme = !darkMode;
+		setDarkMode(newTheme);
+		setThemeCookie(newTheme ? "dark" : "light");
+		// Also set in localStorage to trigger storage event
+		localStorage.setItem("datafab-theme", newTheme ? "dark" : "light");
+	};
 
 	return (
 		<header className="relative z-10 flex h-14 items-center justify-between border-b border-gray-200 dark:border-gray-700 px-4 lg:px-6">
