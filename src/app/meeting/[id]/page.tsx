@@ -8,28 +8,28 @@ import { Button } from "@/components/ui/button";
 import { Video, Copy } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { userService } from "@/lib/userData";
+
 interface MeetingPageProps {
 	params: Promise<{
 		id: string;
 	}>;
 }
 
+declare global {
+	interface Window {
+		JitsiMeetExternalAPI: any;
+	}
+}
+
 export default function MeetingPage({ params }: MeetingPageProps) {
 	const [user, setUser] = useState<any>(null);
-
 	const router = useRouter();
 	const [jitsiAPI, setJitsiAPI] = useState<any>(null);
 	const [isScriptLoaded, setIsScriptLoaded] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const meetingId = use(params).id;
-	const JITSI_URL =
-		process.env.NODE_ENV === "development"
-			? process.env.NEXT_PUBLIC_JITSI_URL_LOCAL ||
-			  "https://localhost:8443/external_api.js"
-			: process.env.NEXT_PUBLIC_JITSI_URL ||
-			  "https://meet.datafabdevelopment.com/external_api.js";
+	const JITSI_URL = "https://meet.datafabdevelopment.com/external_api.js";
 
-	// Fetch user data when component mounts
 	useEffect(() => {
 		const fetchUser = async () => {
 			try {
@@ -37,33 +37,33 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 				setUser(currentUser);
 			} catch (error) {
 				console.error("Error fetching user:", error);
-				//toast.error("Failed to fetch user data");
+				const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+				router.push(`${baseUrl}/auth/sign-in`);
 			}
 		};
 
 		fetchUser();
-	}, []);
+	}, [router]);
 
-	// Get user's display name from user metadata
 	const displayName = user?.user_metadata?.name || user?.email || "Guest User";
 
 	const loadJitsiScript = useCallback(() => {
 		return new Promise<void>((resolve, reject) => {
 			try {
-				console.log("Starting to load Jitsi script...");
+				console.log("Starting to load Meet script...");
 				const script = document.createElement("script");
 				script.src = JITSI_URL;
 				script.async = true;
 
 				script.onload = () => {
-					console.log("Jitsi script loaded successfully");
+					console.log("Meet script loaded successfully");
 					setIsScriptLoaded(true);
 					resolve();
 				};
 
 				script.onerror = (e) => {
-					console.error("Error loading Jitsi script:", e);
-					reject(new Error("Failed to load Jitsi script"));
+					console.error("Error loading Meet script:", e);
+					reject(new Error("Failed to load Meet script"));
 				};
 
 				document.body.appendChild(script);
@@ -97,7 +97,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 				setError(null);
 
 				if (!isScriptLoaded) {
-					return; // Wait for script to load
+					return;
 				}
 
 				if (typeof window.JitsiMeetExternalAPI !== "function") {
@@ -118,11 +118,41 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 						email: user?.email,
 					},
 					configOverwrite: {
-						prejoinPageEnabled: false,
+						p2pTestMode: true,
+						prejoinPageEnabled: true,
 						startWithAudioMuted: true,
 						startWithVideoMuted: false,
 						disableRemoteMute: false,
 						disableRemoteRaiseHand: false,
+						// Main toolbar configuration
+						toolbarButtons: [
+							"microphone",
+							"camera",
+							"desktop",
+							//"custom-leave",
+							"hangup",
+							"chat",
+							"participants-pane",
+							"tileview",
+							"raisehand",
+							"videoquality",
+							"filmstrip",
+							"security",
+						],
+						// Ensure button appears in main toolbar
+						// mainToolbarButtons: [
+						// 	["microphone", "camera", "desktop", "custom-leave", "hangup"],
+						// ],
+						// //buttonsWithNotifyClick: ["custom-leave"],
+						// customToolbarButtons: [
+						// 	{
+						// 		id: "custom-leave",
+						// 		text: "Return to Collab",
+						// 		className: "custom-leave-button",
+						// 		icon: "fa fa-sign-out",
+						// 		backgroundColor: "#1a73e8",
+						// 	},
+						// ],
 						remoteVideoMenu: {
 							disableKick: false,
 							disableGrantModerator: false,
@@ -145,13 +175,12 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 							link: "",
 						},
 						disableDeepLinking: true,
-						// Add lobby/waiting room settings
 						lobby: {
 							enabled: true,
 							autoKnock: true,
 						},
-						enableLobbyChat: false, // Disable chat in lobby
-						requireDisplayName: true, // Force users to enter their name
+						enableLobbyChat: false,
+						requireDisplayName: true,
 						enableClosePage: false,
 						enableInsecureRoomNameWarning: false,
 					},
@@ -159,24 +188,35 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 						TOOLBAR_BUTTONS: [
 							"microphone",
 							"camera",
-							"closedcaptions",
 							"desktop",
-							"fullscreen",
-							"settings",
+							//"custom-leave",
+							"hangup",
+							"chat",
+							"participants-pane",
+							"tileview",
 							"raisehand",
 							"videoquality",
 							"filmstrip",
-							"tileview",
-							"participants-pane",
-							"security", // Add security button to manage lobby
+							"security",
 						],
-						// ... rest of your interfaceConfigOverwrite settings ...
+						TOOLBAR_ALWAYS_VISIBLE: true,
+						SHOW_CHROME_EXTENSION_BANNER: false,
 					},
 				};
+
 				console.log("Creating JitsiMeetExternalAPI instance...");
 				const api = new window.JitsiMeetExternalAPI(domain, options);
 
-				// Add lobby-related event listeners
+				// Add custom button event listener
+				api.addEventListener("toolbarButtonClicked", function (event: any) {
+					if (event.key === "custom-leave") {
+						if (api) {
+							api.dispose();
+							window.location.href = "https://collab.datafabdevelopment.com";
+						}
+					}
+				});
+
 				api.addEventListener(
 					"participantKnocking",
 					(knockingParticipant: any) => {
@@ -207,10 +247,9 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 					setError("Failed to connect to meeting server");
 				});
 
-				// api.addEventListener("errorOccurred", (error: any) => {
-				// 	console.error("Jitsi error:", error);
-				// 	setError(`Meeting error: ${error.error}`);
-				// });
+				api.addEventListener("readyToClose", () => {
+					window.location.href = "https://collab.datafabdevelopment.com";
+				});
 
 				console.log("API instance created successfully");
 				setJitsiAPI(api);
@@ -228,7 +267,6 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 	const copyMeetingLink = async () => {
 		try {
 			await navigator.clipboard.writeText(window.location.href);
-			// You could add a toast notification here
 		} catch (err) {
 			console.error("Failed to copy link:", err);
 		}
@@ -238,7 +276,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 		if (jitsiAPI) {
 			jitsiAPI.dispose();
 			setJitsiAPI(null);
-			router.push("/");
+			window.location.href = "https://collab.datafabdevelopment.com";
 		}
 	};
 
@@ -251,28 +289,29 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 							{error}
 						</div>
 						<Button
-							onClick={() => router.push("/")}
+							onClick={() =>
+								(window.location.href = "https://collab.datafabdevelopment.com")
+							}
 							className="bg-blue-600 hover:bg-blue-700"
 						>
-							Return Home
+							Return to Collab
 						</Button>
 					</div>
 				</div>
 			) : (
 				<div className="fixed inset-0 w-full h-full z-50">
-					{/* Logo Container */}
 					<div className="fixed left-4 top-4 z-50">
 						<img
 							src="/LogoLG2.png"
 							alt="Company Logo"
-							className="h-8 lg:h-12 md:h-12  rounded-lg mt-4"
+							className="h-8 lg:h-12 md:h-12 rounded-lg mt-4"
 						/>
 					</div>
 
 					<div id="jitsiContainer" className="w-full h-full" />
 					<div className="fixed left-4 bottom-0 mb-20 sm:mb-16 md:mb-8 z-50">
 						<div className="flex flex-col gap-3">
-							<Button
+							{/* <Button
 								onClick={endMeeting}
 								className="bg-red-600 hover:bg-red-700 text-white w-10 h-10 p-0 flex items-center justify-center"
 							>
@@ -284,7 +323,7 @@ export default function MeetingPage({ params }: MeetingPageProps) {
 								className="bg-blue-600 hover:bg-blue-700 text-white w-10 h-10 p-0 flex items-center justify-center"
 							>
 								<Copy className="h-4 w-4" />
-							</Button>
+							</Button> */}
 						</div>
 					</div>
 				</div>
